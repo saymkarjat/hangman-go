@@ -1,6 +1,9 @@
 package words
 
-import "errors"
+import (
+	"errors"
+	"math/rand/v2"
+)
 
 type Difficulty string
 
@@ -13,26 +16,31 @@ const (
 type WordList []string
 
 var (
-	EasyWords = WordList{
+	easyWords = WordList{
 		"кот", "дом", "мяч", "сон", "лес",
 	}
-	MediumWords = WordList{
+	mediumWords = WordList{
 		"корабль", "молоток", "зеркало", "черепаха", "крокодил",
 	}
-	HardWords = WordList{
+	hardWords = WordList{
 		"дихотомия", "апробация", "калейдоскоп", "шизофрения", "меланхолия",
 	}
 	wordMap = map[Difficulty]WordList{
-		Easy:   EasyWords,
-		Medium: MediumWords,
-		Hard:   HardWords,
+		Easy:   easyWords,
+		Medium: mediumWords,
+		Hard:   hardWords,
 	}
 )
+
+func (list WordList) RandomWord() string {
+	index := rand.IntN(len(list))
+	return list[index]
+}
 
 func GetWordList(difficulty Difficulty) (WordList, error) {
 	wordList, ok := wordMap[difficulty]
 	if !ok {
-		return nil, errors.New("Ne nayden level")
+		return nil, errors.New("некорректная сложность игры")
 	}
 	return wordList, nil
 }
