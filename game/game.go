@@ -81,7 +81,7 @@ func (g *Game) inputLetter() {
 
 func (g *Game) stopGame() {
 	g.isOver = true
-	println("пошел нахуй")
+	println("вы проиграли")
 }
 
 func inputString() string {
