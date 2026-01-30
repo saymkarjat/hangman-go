@@ -6,8 +6,10 @@ import (
 )
 
 type Game struct {
-	playerName string
-	isOver     bool
+	playerName     string
+	isOver         bool
+	attemptsCount  int
+	guessedLetters []rune
 }
 
 func New(playerName string) *Game {
