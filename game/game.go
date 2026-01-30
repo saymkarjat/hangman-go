@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"hangman-go/words"
+	"slices"
 )
 
 type Game struct {
@@ -27,7 +28,8 @@ func (g *Game) Play(playerName string) {
 func (g *Game) startGame(playerName string) {
 	fmt.Printf("Привет уважаемый " + playerName + ", введи сложность игры(easy, medium, hard): ")
 	randomWord := g.chooseDifficulty().RandomWord()
-	fmt.Println(randomWord)
+	encodedWord := g.maskOriginalWord(randomWord)
+	fmt.Println(encodedWord)
 }
 
 func (g *Game) chooseDifficulty() words.WordList {
@@ -39,6 +41,16 @@ func (g *Game) chooseDifficulty() words.WordList {
 		}
 		fmt.Printf("ошибка, введите сложность игры(easy, medium, hard): ")
 	}
+}
+
+func (g *Game) maskOriginalWord(word string) string {
+	originalWordSlice := []rune(word)
+	for i := 0; i < len(originalWordSlice); i++ {
+		if !slices.Contains(g.guessedLetters, originalWordSlice[i]) {
+			originalWordSlice[i] = '*'
+		}
+	}
+	return string(originalWordSlice)
 }
 
 func inputString() string {
