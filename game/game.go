@@ -19,38 +19,69 @@ func New(playerName string) *Game {
 	}
 }
 
+func (g *Game) incrementAttemptsCount() {
+	g.attemptsCount++
+}
+
 func (g *Game) Play(playerName string) {
+	g.startGame(playerName)
+	randomWord := g.chooseDifficulty().RandomWord()
+	encodedWord := g.maskOriginalWord(randomWord)
+	fmt.Println(encodedWord)
 	for !g.isOver {
-		g.startGame(playerName)
+		g.inputLetter()
+		encodedWord := g.maskOriginalWord(randomWord)
+		fmt.Println(encodedWord)
+		if g.attemptsCount == 6 {
+			g.stopGame()
+		}
 	}
 }
 
 func (g *Game) startGame(playerName string) {
-	fmt.Printf("Привет уважаемый " + playerName + ", введи сложность игры(easy, medium, hard): ")
-	randomWord := g.chooseDifficulty().RandomWord()
-	encodedWord := g.maskOriginalWord(randomWord)
-	fmt.Println(encodedWord)
+	fmt.Printf("Привет уважаемый " + playerName +
+		", введи сложность игры(easy, medium, hard): ")
 }
 
 func (g *Game) chooseDifficulty() words.WordList {
 	for {
 		difficulty := inputString()
-		wordList, err := words.GetWordList(words.Difficulty(difficulty))
+		wordList, err := words.GetWordList(
+			words.Difficulty(difficulty),
+		)
 		if err == nil {
 			return wordList
 		}
-		fmt.Printf("ошибка, введите сложность игры(easy, medium, hard): ")
+		fmt.Printf("ошибка, введите сложность " +
+			"игры(easy, medium, hard): ")
 	}
 }
 
 func (g *Game) maskOriginalWord(word string) string {
 	originalWordSlice := []rune(word)
 	for i := 0; i < len(originalWordSlice); i++ {
-		if !slices.Contains(g.guessedLetters, originalWordSlice[i]) {
+		if !slices.Contains(
+			g.guessedLetters, originalWordSlice[i],
+		) {
 			originalWordSlice[i] = '*'
 		}
 	}
 	return string(originalWordSlice)
+}
+
+func (g *Game) inputLetter() {
+	letter := inputString()
+	g.incrementAttemptsCount()
+	letters := []rune(letter)
+	if (len(letters) > 1) || (len(letters) == 0) {
+		return
+	}
+	g.guessedLetters = append(g.guessedLetters, letters...)
+}
+
+func (g *Game) stopGame() {
+	g.isOver = true
+	println("пошел нахуй")
 }
 
 func inputString() string {
