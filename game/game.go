@@ -28,9 +28,9 @@ func (g *Game) Play() {
 	randomWordToSlice := []rune(randomWord)
 	for !g.isOver {
 		g.guessLetter(randomWordToSlice)
-		maskedWord := g.maskOriginalWord(randomWord)
-		fmt.Println(maskedWord)
-		g.checkGameOver(maskedWord)
+		w := g.maskOriginalWord(randomWord)
+		fmt.Println(w)
+		g.checkGameOver(w)
 	}
 }
 
