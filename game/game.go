@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"hangman-go/words"
 	"slices"
+	"strings"
 )
 
 type Game struct {
 	playerName     string
 	isOver         bool
-	attemptsCount  int
+	failedAttempts int
 	guessedLetters []rune
 }
 
@@ -19,33 +20,28 @@ func New(playerName string) *Game {
 	}
 }
 
-func (g *Game) incrementAttemptsCount() {
-	g.attemptsCount++
-}
-
-func (g *Game) Play(playerName string) {
-	g.startGame(playerName)
+func (g *Game) Play() {
+	g.startGame()
 	randomWord := g.chooseDifficulty().RandomWord()
-	encodedWord := g.maskOriginalWord(randomWord)
-	fmt.Println(encodedWord)
+	maskedWord := g.maskOriginalWord(randomWord)
+	fmt.Println(maskedWord)
+	randomWordToSlice := []rune(randomWord)
 	for !g.isOver {
-		g.inputLetter()
-		encodedWord := g.maskOriginalWord(randomWord)
-		fmt.Println(encodedWord)
-		if g.attemptsCount == 6 {
-			g.stopGame()
-		}
+		g.guessLetter(randomWordToSlice)
+		maskedWord := g.maskOriginalWord(randomWord)
+		fmt.Println(maskedWord)
+		g.checkGameOver(maskedWord)
 	}
 }
 
-func (g *Game) startGame(playerName string) {
-	fmt.Printf("Привет уважаемый " + playerName +
-		", введи сложность игры(easy, medium, hard): ")
+func (g *Game) startGame() {
+	fmt.Printf("Привет уважаемый " + g.playerName +
+		", введите сложность игры(easy, medium, hard): ")
 }
 
 func (g *Game) chooseDifficulty() words.WordList {
 	for {
-		difficulty := inputString()
+		difficulty := scanNextLine()
 		wordList, err := words.GetWordList(
 			words.Difficulty(difficulty),
 		)
@@ -69,22 +65,43 @@ func (g *Game) maskOriginalWord(word string) string {
 	return string(originalWordSlice)
 }
 
-func (g *Game) inputLetter() {
-	letter := inputString()
-	g.incrementAttemptsCount()
+func (g *Game) guessLetter(word []rune) {
+	letter := scanNextLine()
 	letters := []rune(letter)
 	if (len(letters) > 1) || (len(letters) == 0) {
+		fmt.Println("введите ровно одну букву")
 		return
 	}
 	g.guessedLetters = append(g.guessedLetters, letters...)
+	if !slices.Contains(word, letters[0]) {
+		g.incrementFailedAttempts()
+	}
+	g.printHangmanStages(g.failedAttempts)
 }
 
 func (g *Game) stopGame() {
 	g.isOver = true
-	println("вы проиграли")
+	fmt.Println("вы проиграли")
 }
 
-func inputString() string {
+func (g *Game) checkGameOver(maskedWord string) {
+	if !strings.Contains(maskedWord, "*") {
+		g.isOver = true
+		fmt.Println("победа")
+	}
+	if g.failedAttempts >= 6 {
+		g.stopGame()
+	}
+}
+
+func (g *Game) incrementFailedAttempts() {
+	g.failedAttempts++
+}
+
+func (g *Game) printHangmanStages(index int) {
+	fmt.Println(hangmanStages[index])
+}
+func scanNextLine() string {
 	var input string
 	_, _ = fmt.Scanln(&input)
 	return input
