@@ -11,5 +11,5 @@ func main() {
 	_, _ = fmt.Scanln(&playerName)
 
 	g := game.New(playerName)
-	g.Play(playerName)
+	g.Play()
 }
